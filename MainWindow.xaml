@@ -1,0 +1,272 @@
+<ui:FluentWindow x:Class="ControlSaveEditor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:local="clr-namespace:ControlSaveEditor"
+        mc:Ignorable="d"
+        Title="Control Save Game Editor" Height="780" Width="960"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ui:TitleBar Grid.Row="0" Title="Control - Ultimate Save Game Editor" />
+
+        <Grid Grid.Row="1" Margin="24,12,24,12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Save Slot Selection Card -->
+            <ui:CardControl Grid.Row="0" Margin="0,0,0,12">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <ui:TextBlock Text="Select Save Game Slot" FontTypography="BodyStrong" />
+                        <ui:TextBlock Text="Auto-detected saves from Remedy\Control folder" 
+                                      Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ComboBox x:Name="CmbSlots" Width="300" Margin="0,0,12,0" SelectionChanged="CmbSlots_SelectionChanged" />
+                    <ui:Button x:Name="BtnBrowse" Content="Browse File..." Icon="{ui:SymbolIcon Folder24}" Click="BtnBrowse_Click" Margin="0,0,10,0" />
+                    <ui:Button x:Name="BtnReload" Content="Reload" Icon="{ui:SymbolIcon ArrowClockwise24}" Click="BtnReload_Click" />
+                </StackPanel>
+            </ui:CardControl>
+
+            <!-- Status Banner -->
+            <Border x:Name="PnlStatus" Grid.Row="1" Background="{DynamicResource SubtleFillColorSecondaryBrush}" 
+                    CornerRadius="8" Padding="14,10" Margin="0,0,0,14" Visibility="Collapsed">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <ui:TextBlock x:Name="TxtStatusFile" Text="Loaded Slot" FontTypography="BodyStrong" />
+                        <ui:TextBlock x:Name="TxtStatusPath" Text="" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <ui:Badge x:Name="BadgeCollectibles" Content="131 Lore / 25 CPs" Appearance="Secondary" Margin="0,0,8,0" />
+                        <ui:Badge x:Name="BadgeCrc" Content="CRC32 Valid" Appearance="Success" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Tabbed Editor Categories -->
+            <TabControl Grid.Row="2">
+                <!-- TAB 1: Currency & Stats -->
+                <TabItem Header="Currency &amp; Stats">
+                    <ScrollViewer Margin="8,12,8,8" VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <GroupBox Header="Player Stats" Padding="16" Margin="0,0,0,14">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="20" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Source (Currency) -->
+                                    <StackPanel Grid.Column="0">
+                                        <ui:TextBlock Text="Source (In-Game Currency)" FontTypography="BodyStrong" Margin="0,0,0,6" />
+                                        <ui:TextBox x:Name="TxtSource" PlaceholderText="Source count" Margin="0,0,0,10" />
+                                        <StackPanel Orientation="Horizontal">
+                                            <ui:Button Content="+100,000" Click="BtnAddSource100k_Click" Margin="0,0,8,0" />
+                                            <ui:Button Content="+1,000,000" Click="BtnAddSource1M_Click" Margin="0,0,8,0" />
+                                            <ui:Button Content="Set 10,000,000" Click="BtnSetSource10M_Click" />
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- Ability Points -->
+                                    <StackPanel Grid.Column="2">
+                                        <ui:TextBlock Text="Ability Points" FontTypography="BodyStrong" Margin="0,0,0,6" />
+                                        <ui:TextBox x:Name="TxtAbilityPoints" PlaceholderText="Ability points" Margin="0,0,0,10" />
+                                        <StackPanel Orientation="Horizontal">
+                                            <ui:Button Content="+10 Points" Click="BtnAddAp10_Click" Margin="0,0,8,0" />
+                                            <ui:Button Content="+50 Points" Click="BtnAddAp50_Click" Margin="0,0,8,0" />
+                                            <ui:Button Content="Max (100 AP)" Click="BtnMaxAp_Click" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </GroupBox>
+
+                            <ui:CardControl>
+                                <ui:CardControl.Header>
+                                    <StackPanel>
+                                        <ui:TextBlock Text="Exploration &amp; Progression Info" FontTypography="BodyStrong" />
+                                        <ui:TextBlock x:Name="TxtExplorationSummary" 
+                                                      Text="Control points and lore narrative objects recorded in this save." 
+                                                      Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+                                </ui:CardControl.Header>
+                            </ui:CardControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- TAB 2: Crafting Materials -->
+                <TabItem Header="Crafting Materials">
+                    <Grid Margin="8,12,8,8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Action Bar -->
+                        <Border Grid.Row="0" Margin="0,0,0,12" Padding="12,8" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" CornerRadius="6">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <ui:TextBlock Text="Crafting materials, upgrade components, and Jukebox tokens." 
+                                              VerticalAlignment="Center" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <ui:Button Content="Max All Materials (999)" Appearance="Primary" 
+                                               Icon="{ui:SymbolIcon Sparkle24}" Click="BtnMaxAllMaterials_Click" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <ListBox Grid.Row="1" x:Name="LstMaterials" HorizontalContentAlignment="Stretch">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="4,4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="130" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <ui:TextBlock Text="{Binding Name}" FontTypography="BodyStrong" />
+                                            <ui:TextBlock Text="{Binding Gid, StringFormat='ID: 0x{0:X}'}" 
+                                                          Foreground="{DynamicResource TextFillColorTertiaryBrush}" FontSize="11" />
+                                        </StackPanel>
+                                        <ui:TextBox Grid.Column="1" Text="{Binding Quantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                    VerticalAlignment="Center" TextAlignment="Right" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </TabItem>
+
+                <!-- TAB 3: Mods & God Mode -->
+                <TabItem Header="Mods &amp; God Mode">
+                    <Grid Margin="8,12,8,8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Action Bar -->
+                        <Border Grid.Row="0" Margin="0,0,0,12" Padding="12,8" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" CornerRadius="6">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                    <ui:TextBlock Text="Weapon &amp; Personal Mods Multiplier" FontTypography="BodyStrong" />
+                                    <ui:TextBlock Text="Boost damage, health, ammo efficiency, and launch power." 
+                                                  Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="12" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <ui:Button Content="Reset Vanilla" Click="BtnResetMods_Click" Margin="0,0,8,0" />
+                                    <ui:Button Content="⚡ Boost +500%" Appearance="Secondary" Click="BtnBoostMods500_Click" Margin="0,0,8,0" />
+                                    <ui:Button Content="⚡ God Mode (+1000%)" Appearance="Primary" Click="BtnBoostMods1000_Click" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <ListBox Grid.Row="1" x:Name="LstMods" HorizontalContentAlignment="Stretch">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="4,4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="130" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <ui:TextBlock Text="{Binding Name}" FontTypography="BodyStrong" />
+                                            <ui:TextBlock Text="{Binding DisplayStat, StringFormat='Active: {0}'}" 
+                                                          Foreground="{DynamicResource PaletteGreenBrush}" FontSize="12" />
+                                        </StackPanel>
+                                        <ui:TextBox Grid.Column="1" Text="{Binding Parameter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                    VerticalAlignment="Center" TextAlignment="Right" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </TabItem>
+
+                <!-- TAB 4: Outfits -->
+                <TabItem Header="Outfits &amp; Costumes">
+                    <Grid Margin="8,12,8,8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Action Bar -->
+                        <Border Grid.Row="0" Margin="0,0,0,12" Padding="12,8" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" CornerRadius="6">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <ui:TextBlock Text="Toggle outfits or unlock exclusive &amp; pre-order suits." 
+                                              VerticalAlignment="Center" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                <ui:Button Grid.Column="1" Content="Unlock All Outfits" Appearance="Primary" 
+                                           Icon="{ui:SymbolIcon LockOpen24}" Click="BtnUnlockAllOutfits_Click" />
+                            </Grid>
+                        </Border>
+
+                        <ListBox Grid.Row="1" x:Name="LstOutfits" HorizontalContentAlignment="Stretch">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="4,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <ui:TextBlock Text="{Binding Name}" FontTypography="BodyStrong" />
+                                            <ui:TextBlock Text="{Binding OutfitId, StringFormat='Outfit ID: {0}'}" 
+                                                          Foreground="{DynamicResource TextFillColorTertiaryBrush}" FontSize="11" />
+                                        </StackPanel>
+                                        <CheckBox Grid.Column="1" Content="Unlocked" 
+                                                  IsChecked="{Binding IsUnlocked, Mode=TwoWay}" VerticalAlignment="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Grid>
+
+        <!-- Bottom Action Bar -->
+        <Border Grid.Row="2" Background="{DynamicResource ApplicationBackgroundBrush}" 
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="0,1,0,0" Padding="24,14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ui:TextBlock x:Name="TxtSaveFeedback" Text="" Foreground="{DynamicResource PaletteGreenBrush}" 
+                              VerticalAlignment="Center" FontTypography="BodyStrong" />
+                <ui:Button Grid.Column="1" x:Name="BtnSaveChanges" Content="Save &amp; Apply All Changes" 
+                           Appearance="Primary" Icon="{ui:SymbolIcon Save24}" 
+                           Click="BtnSaveChanges_Click" Height="42" Padding="24,0" />
+            </Grid>
+        </Border>
+    </Grid>
+</ui:FluentWindow>

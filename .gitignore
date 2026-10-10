@@ -1,0 +1,16 @@
+## Build results
+[Bb]in/
+[Oo]bj/
+publish/
+
+## Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Temporary data & scratch
+*.bak
+dictionaries.txt
+mod_dictionary.txt
